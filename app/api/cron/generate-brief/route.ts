@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { scanWorld } from '@/lib/exa';
-import { synthesizeBrief } from '@/lib/openai';
+import { synthesizeBrief } from '@/lib/claude';
 
 export const maxDuration = 120;
 
