@@ -4,21 +4,27 @@ import { synthesizeBrief } from '@/lib/claude';
 
 export const maxDuration = 120;
 
-/**
- * On-demand brief generation endpoint.
- * Called by the dashboard page to generate a fresh brief.
- */
 export async function POST() {
+    if (!process.env.EXA_API_KEY) {
+        return NextResponse.json(
+            { error: 'EXA_API_KEY not set. Add it in Vercel project settings.' },
+            { status: 500 }
+        );
+    }
+    if (!process.env.ANTHROPIC_API_KEY) {
+        return NextResponse.json(
+            { error: 'ANTHROPIC_API_KEY not set. Add it in Vercel project settings.' },
+            { status: 500 }
+        );
+    }
+
     try {
-        // Step 1: Scan the world
         const worldSignals = await scanWorld();
 
-        // Step 2: Format for synthesis
         const rawData = worldSignals.map((s, i) =>
             `[Signal ${i + 1}] ${s.title}\nSource: ${s.url}\nDate: ${s.publishedDate || 'Unknown'}\nSummary: ${s.summary}`
         ).join('\n\n---\n\n');
 
-        // Step 3: Generate brief via Claude
         const brief = await synthesizeBrief(rawData);
 
         return NextResponse.json({
@@ -28,10 +34,10 @@ export async function POST() {
             signals: worldSignals.slice(0, 5),
             brief,
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('[RRG OS] Brief generation failed:', error);
         return NextResponse.json(
-            { error: 'Brief generation failed. Check API keys.' },
+            { error: error.message || 'Brief generation failed.' },
             { status: 500 }
         );
     }
