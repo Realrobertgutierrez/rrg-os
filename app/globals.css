@@ -1,0 +1,21 @@
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+a:hover {
+  background: #111 !important;
+}
