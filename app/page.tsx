@@ -39,43 +39,85 @@ export default function Home() {
         }
     };
 
+    const formatDate = (iso: string) => {
+        const d = new Date(iso);
+        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    };
+
+    const formatTime = (iso: string) => {
+        const d = new Date(iso);
+        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    };
+
     return (
         <main style={styles.main}>
-            <div style={styles.header}>
+            {/* Header */}
+            <header style={styles.header}>
                 <h1 style={styles.title}>RRG OS</h1>
+                <p style={styles.date}>{formatDate(new Date().toISOString())}</p>
+            </header>
+
+            {/* Status Bar */}
+            <div style={styles.statusBar}>
+                <div style={styles.statusItem}>
+                    <span style={styles.statusLabel}>WORLD SCAN</span>
+                    <span style={styles.statusValue}>3:00 AM</span>
+                </div>
+                <div style={styles.statusDivider} />
+                <div style={styles.statusItem}>
+                    <span style={styles.statusLabel}>CONTENT SCAN</span>
+                    <span style={styles.statusValue}>6:00 AM</span>
+                </div>
+                <div style={styles.statusDivider} />
+                <div style={styles.statusItem}>
+                    <span style={styles.statusLabel}>BRIEF</span>
+                    <span style={styles.statusValue}>7:00 AM</span>
+                </div>
             </div>
 
-            {!briefData && !loading && (
-                <div style={styles.ctaContainer}>
-                    <button onClick={generateBrief} style={styles.generateBtn}>
-                        Generate Brief
-                    </button>
+            {/* Two-Column Grid: Generate + Content Overview */}
+            <div style={styles.grid}>
+                {/* Left: Generate Brief */}
+                <div style={styles.card}>
+                    <h2 style={styles.cardTitle}>Daily Brief</h2>
+                    <p style={styles.cardDescription}>
+                        Scans AI, economy, crypto, and content trends. Synthesizes into actionable signals with content ideas.
+                    </p>
+                    {!loading ? (
+                        <button onClick={generateBrief} style={styles.generateBtn}>
+                            {briefData ? 'Regenerate' : 'Generate Brief'}
+                        </button>
+                    ) : (
+                        <div style={styles.loadingRow}>
+                            <div style={styles.spinner} />
+                            <span style={styles.loadingLabel}>Scanning the world...</span>
+                        </div>
+                    )}
+                    {error && <p style={styles.errorText}>{error}</p>}
                 </div>
-            )}
 
-            {loading && (
-                <div style={styles.loadingContainer}>
-                    <div style={styles.spinner} />
-                    <p style={styles.loadingText}>Scanning...</p>
+                {/* Right: Content Performance */}
+                <div style={styles.card}>
+                    <h2 style={styles.cardTitle}>Content Performance</h2>
+                    <p style={styles.cardDescription}>
+                        Top performing content from the last 7 days. Pulls from Instagram and Notion.
+                    </p>
+                    <div style={styles.comingSoon}>
+                        <p style={styles.comingSoonText}>Awaiting API integration</p>
+                        <p style={styles.comingSoonSub}>Instagram Graph API + Notion API</p>
+                    </div>
                 </div>
-            )}
+            </div>
 
-            {error && (
-                <div style={styles.errorContainer}>
-                    <p style={styles.errorText}>{error}</p>
-                    <button onClick={generateBrief} style={styles.retryBtn}>
-                        Retry
-                    </button>
-                </div>
-            )}
-
+            {/* Brief Display */}
             {briefData && (
-                <div style={styles.briefContainer}>
-                    <div style={styles.metaRow}>
-                        <span style={styles.metaTag}>{briefData.signalCount} signals</span>
-                        <span style={styles.metaTime}>
-                            {new Date(briefData.timestamp).toLocaleString()}
-                        </span>
+                <section style={styles.briefSection}>
+                    <div style={styles.briefHeader}>
+                        <h2 style={styles.briefTitle}>Today's Brief</h2>
+                        <div style={styles.briefMeta}>
+                            <span>{briefData.signalCount} signals scanned</span>
+                            <span>{formatTime(briefData.timestamp)}</span>
+                        </div>
                     </div>
 
                     <div style={styles.briefContent}>
@@ -93,37 +135,67 @@ export default function Home() {
                                 return <p key={i} style={styles.bold}>{line.replace(/\*\*/g, '')}</p>;
                             }
                             if (line.startsWith('- ')) {
-                                return <p key={i} style={styles.bullet}>{line.replace('- ', '— ')}</p>;
+                                return <p key={i} style={styles.bullet}>{line.replace('- ', '')}</p>;
                             }
                             if (line.trim() === '') {
-                                return <div key={i} style={{ height: '12px' }} />;
+                                return <div key={i} style={{ height: '10px' }} />;
                             }
                             return <p key={i} style={styles.paragraph}>{line}</p>;
                         })}
                     </div>
 
+                    {/* Source Signals */}
                     {briefData.signals.length > 0 && (
                         <div style={styles.sourcesSection}>
-                            <p style={styles.sourcesLabel}>Sources</p>
-                            {briefData.signals.map((signal, i) => (
-                                <a
-                                    key={i}
-                                    href={signal.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={styles.sourceLink}
-                                >
-                                    {signal.title}
-                                </a>
-                            ))}
+                            <h3 style={styles.sourcesTitle}>Sources</h3>
+                            <div style={styles.sourcesList}>
+                                {briefData.signals.map((signal, i) => (
+                                    <a
+                                        key={i}
+                                        href={signal.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={styles.sourceCard}
+                                    >
+                                        <span style={styles.sourceNum}>{String(i + 1).padStart(2, '0')}</span>
+                                        <div>
+                                            <p style={styles.sourceTitle}>{signal.title}</p>
+                                            <p style={styles.sourceSummary}>{signal.summary.slice(0, 120)}...</p>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
                         </div>
                     )}
-
-                    <button onClick={generateBrief} style={styles.regenerateBtn}>
-                        Regenerate
-                    </button>
-                </div>
+                </section>
             )}
+
+            {/* Bottom Sections */}
+            <div style={styles.grid}>
+                {/* Notion Scripts */}
+                <div style={styles.card}>
+                    <h2 style={styles.cardTitle}>Scripts from Notion</h2>
+                    <p style={styles.cardDescription}>
+                        Latest video scripts and content drafts synced from your Notion workspace.
+                    </p>
+                    <div style={styles.comingSoon}>
+                        <p style={styles.comingSoonText}>Awaiting Notion API</p>
+                        <p style={styles.comingSoonSub}>Will pull scripts, topics, and drafts</p>
+                    </div>
+                </div>
+
+                {/* Outreach */}
+                <div style={styles.card}>
+                    <h2 style={styles.cardTitle}>Brand Outreach</h2>
+                    <p style={styles.cardDescription}>
+                        Automated partnership discovery and email outreach agent.
+                    </p>
+                    <div style={styles.comingSoon}>
+                        <p style={styles.comingSoonText}>Phase 2</p>
+                        <p style={styles.comingSoonSub}>Activate after content pipeline is running</p>
+                    </div>
+                </div>
+            </div>
         </main>
     );
 }
@@ -134,163 +206,246 @@ const styles: { [key: string]: React.CSSProperties } = {
         background: '#000',
         color: '#fff',
         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-        padding: '60px 24px',
-        maxWidth: '640px',
+        padding: '40px 32px 80px',
+        maxWidth: '960px',
         margin: '0 auto',
     },
     header: {
-        marginBottom: '60px',
+        marginBottom: '32px',
     },
     title: {
-        fontSize: '20px',
-        fontWeight: 500,
-        letterSpacing: '2px',
+        fontSize: '22px',
+        fontWeight: 600,
+        letterSpacing: '1.5px',
         textTransform: 'uppercase' as const,
+        margin: '0 0 6px',
+    },
+    date: {
+        fontSize: '13px',
+        color: '#555',
         margin: 0,
+    },
+    statusBar: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0',
+        padding: '16px 20px',
+        background: '#0a0a0a',
+        border: '1px solid #151515',
+        borderRadius: '8px',
+        marginBottom: '24px',
+    },
+    statusItem: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column' as const,
+        alignItems: 'center',
+        gap: '4px',
+    },
+    statusLabel: {
+        fontSize: '10px',
+        color: '#444',
+        letterSpacing: '1.5px',
+        fontWeight: 500,
+    },
+    statusValue: {
+        fontSize: '13px',
+        color: '#888',
+        fontWeight: 500,
+    },
+    statusDivider: {
+        width: '1px',
+        height: '28px',
+        background: '#1a1a1a',
+    },
+    grid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '16px',
+        marginBottom: '24px',
+    },
+    card: {
+        background: '#0a0a0a',
+        border: '1px solid #151515',
+        borderRadius: '8px',
+        padding: '24px',
+    },
+    cardTitle: {
+        fontSize: '14px',
+        fontWeight: 600,
+        margin: '0 0 8px',
         color: '#fff',
     },
-    ctaContainer: {
-        paddingTop: '120px',
-        textAlign: 'center' as const,
+    cardDescription: {
+        fontSize: '12px',
+        color: '#555',
+        lineHeight: '1.6',
+        margin: '0 0 20px',
     },
     generateBtn: {
         background: '#fff',
         color: '#000',
         border: 'none',
-        padding: '14px 36px',
-        fontSize: '14px',
+        padding: '10px 24px',
+        fontSize: '13px',
         fontWeight: 500,
         borderRadius: '4px',
         cursor: 'pointer',
-        letterSpacing: '0.5px',
+        width: '100%',
     },
-    loadingContainer: {
-        textAlign: 'center' as const,
-        paddingTop: '120px',
+    loadingRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
     },
     spinner: {
-        width: '20px',
-        height: '20px',
+        width: '16px',
+        height: '16px',
         border: '1.5px solid #333',
         borderTopColor: '#fff',
         borderRadius: '50%',
-        margin: '0 auto 20px',
         animation: 'spin 1s linear infinite',
     },
-    loadingText: {
-        fontSize: '13px',
+    loadingLabel: {
+        fontSize: '12px',
         color: '#666',
     },
-    errorContainer: {
-        textAlign: 'center' as const,
-        paddingTop: '80px',
-    },
     errorText: {
-        color: '#888',
-        fontSize: '13px',
-        marginBottom: '16px',
+        color: '#ff4444',
+        fontSize: '12px',
+        marginTop: '10px',
+        marginBottom: 0,
     },
-    retryBtn: {
-        background: 'transparent',
-        color: '#fff',
-        border: '1px solid #333',
-        padding: '8px 20px',
-        fontSize: '13px',
+    comingSoon: {
+        padding: '12px 16px',
+        background: '#050505',
         borderRadius: '4px',
-        cursor: 'pointer',
+        border: '1px dashed #1a1a1a',
     },
-    briefContainer: {
-        borderTop: '1px solid #1a1a1a',
-        paddingTop: '32px',
+    comingSoonText: {
+        fontSize: '12px',
+        color: '#444',
+        margin: '0 0 2px',
+        fontWeight: 500,
     },
-    metaRow: {
+    comingSoonSub: {
+        fontSize: '11px',
+        color: '#333',
+        margin: 0,
+    },
+    briefSection: {
+        marginBottom: '24px',
+    },
+    briefHeader: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '32px',
+        marginBottom: '16px',
     },
-    metaTag: {
-        fontSize: '11px',
-        color: '#555',
-        textTransform: 'uppercase' as const,
-        letterSpacing: '1px',
+    briefTitle: {
+        fontSize: '16px',
+        fontWeight: 600,
+        margin: 0,
     },
-    metaTime: {
+    briefMeta: {
+        display: 'flex',
+        gap: '16px',
         fontSize: '11px',
-        color: '#333',
+        color: '#444',
     },
     briefContent: {
-        marginBottom: '40px',
+        background: '#0a0a0a',
+        border: '1px solid #151515',
+        borderRadius: '8px',
+        padding: '28px 24px',
+        marginBottom: '16px',
     },
     h2: {
-        fontSize: '18px',
+        fontSize: '17px',
         fontWeight: 600,
-        margin: '32px 0 12px',
+        margin: '28px 0 10px',
         color: '#fff',
     },
     h3: {
-        fontSize: '15px',
+        fontSize: '14px',
         fontWeight: 600,
-        margin: '24px 0 8px',
+        margin: '20px 0 8px',
         color: '#ccc',
     },
     h4: {
-        fontSize: '13px',
+        fontSize: '12px',
         fontWeight: 600,
-        margin: '20px 0 6px',
-        color: '#999',
+        margin: '16px 0 6px',
+        color: '#888',
         textTransform: 'uppercase' as const,
         letterSpacing: '0.5px',
     },
     bold: {
         fontWeight: 600,
-        fontSize: '14px',
+        fontSize: '13px',
         lineHeight: '1.8',
-        color: '#eee',
+        color: '#ddd',
         margin: '4px 0',
     },
     bullet: {
-        fontSize: '14px',
+        fontSize: '13px',
         lineHeight: '1.8',
         color: '#aaa',
-        paddingLeft: '8px',
+        paddingLeft: '16px',
         margin: '2px 0',
+        position: 'relative' as const,
     },
     paragraph: {
-        fontSize: '14px',
+        fontSize: '13px',
         lineHeight: '1.8',
         color: '#aaa',
         margin: '4px 0',
     },
     sourcesSection: {
-        borderTop: '1px solid #111',
-        paddingTop: '24px',
-        marginBottom: '32px',
+        background: '#0a0a0a',
+        border: '1px solid #151515',
+        borderRadius: '8px',
+        padding: '20px 24px',
     },
-    sourcesLabel: {
-        fontSize: '11px',
-        color: '#444',
+    sourcesTitle: {
+        fontSize: '12px',
+        fontWeight: 600,
+        color: '#555',
         textTransform: 'uppercase' as const,
         letterSpacing: '1px',
-        marginBottom: '12px',
+        margin: '0 0 12px',
     },
-    sourceLink: {
-        display: 'block',
-        padding: '6px 0',
-        textDecoration: 'none',
-        color: '#555',
-        fontSize: '13px',
-        borderBottom: '1px solid #0a0a0a',
+    sourcesList: {
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '8px',
     },
-    regenerateBtn: {
-        background: 'transparent',
-        color: '#444',
-        border: '1px solid #1a1a1a',
-        padding: '8px 20px',
-        fontSize: '12px',
+    sourceCard: {
+        display: 'flex',
+        gap: '12px',
+        padding: '10px 12px',
         borderRadius: '4px',
-        cursor: 'pointer',
-        display: 'block',
-        margin: '0 auto',
+        textDecoration: 'none',
+        color: '#aaa',
+        border: '1px solid #111',
+    },
+    sourceNum: {
+        fontSize: '11px',
+        color: '#333',
+        fontWeight: 600,
+        paddingTop: '2px',
+        minWidth: '20px',
+    },
+    sourceTitle: {
+        fontSize: '13px',
+        color: '#999',
+        margin: '0 0 2px',
+        fontWeight: 500,
+    },
+    sourceSummary: {
+        fontSize: '11px',
+        color: '#444',
+        margin: 0,
+        lineHeight: '1.5',
     },
 };
