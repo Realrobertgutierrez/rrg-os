@@ -41,90 +41,70 @@ export default function Home() {
 
     return (
         <main style={styles.main}>
-            {/* Header */}
             <div style={styles.header}>
-                <div style={styles.logoRow}>
-                    <div style={styles.logoDot} />
-                    <h1 style={styles.title}>RRG OS</h1>
-                </div>
-                <p style={styles.subtitle}>Automated Intelligence Dashboard</p>
+                <h1 style={styles.title}>RRG OS</h1>
             </div>
 
-            {/* Generate Button */}
             {!briefData && !loading && (
                 <div style={styles.ctaContainer}>
                     <button onClick={generateBrief} style={styles.generateBtn}>
-                        ⚡ Generate Today's Brief
+                        Generate Brief
                     </button>
-                    <p style={styles.ctaHint}>
-                        Scans AI, economy, crypto, and content trends — then synthesizes your morning brief.
-                    </p>
                 </div>
             )}
 
-            {/* Loading State */}
             {loading && (
                 <div style={styles.loadingContainer}>
                     <div style={styles.spinner} />
-                    <p style={styles.loadingText}>Scanning the world...</p>
-                    <p style={styles.loadingSubtext}>
-                        Exa is crawling 5 categories → Claude is synthesizing your brief
-                    </p>
+                    <p style={styles.loadingText}>Scanning...</p>
                 </div>
             )}
 
-            {/* Error State */}
             {error && (
                 <div style={styles.errorContainer}>
-                    <p style={styles.errorText}>❌ {error}</p>
+                    <p style={styles.errorText}>{error}</p>
                     <button onClick={generateBrief} style={styles.retryBtn}>
-                        Try Again
+                        Retry
                     </button>
                 </div>
             )}
 
-            {/* Brief Display */}
             {briefData && (
                 <div style={styles.briefContainer}>
-                    {/* Meta */}
                     <div style={styles.metaRow}>
-                        <span style={styles.metaTag}>
-                            {briefData.signalCount} signals scanned
-                        </span>
+                        <span style={styles.metaTag}>{briefData.signalCount} signals</span>
                         <span style={styles.metaTime}>
                             {new Date(briefData.timestamp).toLocaleString()}
                         </span>
                     </div>
 
-                    {/* Brief Content */}
                     <div style={styles.briefContent}>
                         {briefData.brief.split('\n').map((line, i) => {
                             if (line.startsWith('# ')) {
-                                return <h2 key={i} style={styles.briefH2}>{line.replace('# ', '')}</h2>;
+                                return <h2 key={i} style={styles.h2}>{line.replace('# ', '')}</h2>;
                             }
                             if (line.startsWith('## ')) {
-                                return <h3 key={i} style={styles.briefH3}>{line.replace('## ', '')}</h3>;
+                                return <h3 key={i} style={styles.h3}>{line.replace('## ', '')}</h3>;
                             }
                             if (line.startsWith('### ')) {
-                                return <h4 key={i} style={styles.briefH4}>{line.replace('### ', '')}</h4>;
+                                return <h4 key={i} style={styles.h4}>{line.replace('### ', '')}</h4>;
                             }
                             if (line.startsWith('**') && line.endsWith('**')) {
-                                return <p key={i} style={styles.briefBold}>{line.replace(/\*\*/g, '')}</p>;
+                                return <p key={i} style={styles.bold}>{line.replace(/\*\*/g, '')}</p>;
                             }
                             if (line.startsWith('- ')) {
-                                return <p key={i} style={styles.briefBullet}>• {line.replace('- ', '')}</p>;
+                                return <p key={i} style={styles.bullet}>{line.replace('- ', '— ')}</p>;
                             }
                             if (line.trim() === '') {
                                 return <div key={i} style={{ height: '12px' }} />;
                             }
-                            return <p key={i} style={styles.briefParagraph}>{line}</p>;
+                            return <p key={i} style={styles.paragraph}>{line}</p>;
                         })}
                     </div>
 
-                    {/* Source Signals */}
                     {briefData.signals.length > 0 && (
                         <div style={styles.sourcesSection}>
-                            <h4 style={styles.sourcesTitle}>📡 Source Signals</h4>
+                            <p style={styles.sourcesLabel}>Sources</p>
                             {briefData.signals.map((signal, i) => (
                                 <a
                                     key={i}
@@ -133,29 +113,17 @@ export default function Home() {
                                     rel="noopener noreferrer"
                                     style={styles.sourceLink}
                                 >
-                                    <span style={styles.sourceIndex}>{i + 1}</span>
-                                    <span style={styles.sourceName}>{signal.title}</span>
+                                    {signal.title}
                                 </a>
                             ))}
                         </div>
                     )}
 
-                    {/* Regenerate */}
                     <button onClick={generateBrief} style={styles.regenerateBtn}>
-                        ↻ Regenerate Brief
+                        Regenerate
                     </button>
                 </div>
             )}
-
-            {/* Cron Schedule Footer */}
-            <div style={styles.footer}>
-                <p style={styles.footerLabel}>Automated Schedule (MST)</p>
-                <div style={styles.cronRow}>
-                    <span style={styles.cronItem}>🌍 3:00 AM — Scan World</span>
-                    <span style={styles.cronItem}>📊 6:00 AM — Scan Content</span>
-                    <span style={styles.cronItem}>📋 7:00 AM — Generate Brief</span>
-                </div>
-            </div>
         </main>
     );
 }
@@ -166,98 +134,69 @@ const styles: { [key: string]: React.CSSProperties } = {
         background: '#000',
         color: '#fff',
         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
-        padding: '40px 24px',
-        maxWidth: '720px',
+        padding: '60px 24px',
+        maxWidth: '640px',
         margin: '0 auto',
     },
     header: {
-        marginBottom: '48px',
-    },
-    logoRow: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        marginBottom: '8px',
-    },
-    logoDot: {
-        width: '10px',
-        height: '10px',
-        borderRadius: '50%',
-        background: '#00ff88',
-        boxShadow: '0 0 12px #00ff8866',
+        marginBottom: '60px',
     },
     title: {
-        fontSize: '28px',
-        fontWeight: 700,
-        letterSpacing: '-0.5px',
+        fontSize: '20px',
+        fontWeight: 500,
+        letterSpacing: '2px',
+        textTransform: 'uppercase' as const,
         margin: 0,
-    },
-    subtitle: {
-        fontSize: '14px',
-        color: '#666',
-        margin: 0,
-        paddingLeft: '22px',
+        color: '#fff',
     },
     ctaContainer: {
+        paddingTop: '120px',
         textAlign: 'center' as const,
-        padding: '80px 0',
     },
     generateBtn: {
         background: '#fff',
         color: '#000',
         border: 'none',
-        padding: '16px 40px',
-        fontSize: '16px',
-        fontWeight: 600,
-        borderRadius: '8px',
+        padding: '14px 36px',
+        fontSize: '14px',
+        fontWeight: 500,
+        borderRadius: '4px',
         cursor: 'pointer',
-        letterSpacing: '-0.3px',
-        transition: 'opacity 0.2s',
-    },
-    ctaHint: {
-        color: '#555',
-        fontSize: '13px',
-        marginTop: '16px',
-        lineHeight: '1.5',
+        letterSpacing: '0.5px',
     },
     loadingContainer: {
         textAlign: 'center' as const,
-        padding: '80px 0',
+        paddingTop: '120px',
     },
     spinner: {
-        width: '32px',
-        height: '32px',
-        border: '2px solid #333',
+        width: '20px',
+        height: '20px',
+        border: '1.5px solid #333',
         borderTopColor: '#fff',
         borderRadius: '50%',
         margin: '0 auto 20px',
         animation: 'spin 1s linear infinite',
     },
     loadingText: {
-        fontSize: '18px',
-        fontWeight: 600,
-        marginBottom: '8px',
-    },
-    loadingSubtext: {
         fontSize: '13px',
         color: '#666',
     },
     errorContainer: {
         textAlign: 'center' as const,
-        padding: '60px 0',
+        paddingTop: '80px',
     },
     errorText: {
-        color: '#ff4444',
-        fontSize: '15px',
+        color: '#888',
+        fontSize: '13px',
         marginBottom: '16px',
     },
     retryBtn: {
         background: 'transparent',
         color: '#fff',
         border: '1px solid #333',
-        padding: '10px 24px',
-        fontSize: '14px',
-        borderRadius: '6px',
+        padding: '8px 20px',
+        fontSize: '13px',
+        borderRadius: '4px',
         cursor: 'pointer',
     },
     briefContainer: {
@@ -268,134 +207,90 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '28px',
+        marginBottom: '32px',
     },
     metaTag: {
-        background: '#111',
-        border: '1px solid #222',
-        padding: '4px 12px',
-        borderRadius: '100px',
-        fontSize: '12px',
-        color: '#888',
+        fontSize: '11px',
+        color: '#555',
+        textTransform: 'uppercase' as const,
+        letterSpacing: '1px',
     },
     metaTime: {
-        fontSize: '12px',
-        color: '#555',
+        fontSize: '11px',
+        color: '#333',
     },
     briefContent: {
-        background: '#0a0a0a',
-        border: '1px solid #1a1a1a',
-        borderRadius: '12px',
-        padding: '28px 24px',
-        marginBottom: '24px',
+        marginBottom: '40px',
     },
-    briefH2: {
-        fontSize: '20px',
-        fontWeight: 700,
-        marginBottom: '16px',
-        marginTop: '24px',
+    h2: {
+        fontSize: '18px',
+        fontWeight: 600,
+        margin: '32px 0 12px',
         color: '#fff',
     },
-    briefH3: {
-        fontSize: '16px',
+    h3: {
+        fontSize: '15px',
         fontWeight: 600,
-        marginBottom: '12px',
-        marginTop: '20px',
+        margin: '24px 0 8px',
         color: '#ccc',
     },
-    briefH4: {
-        fontSize: '14px',
+    h4: {
+        fontSize: '13px',
         fontWeight: 600,
-        marginBottom: '8px',
-        marginTop: '16px',
-        color: '#aaa',
+        margin: '20px 0 6px',
+        color: '#999',
+        textTransform: 'uppercase' as const,
+        letterSpacing: '0.5px',
     },
-    briefBold: {
+    bold: {
         fontWeight: 600,
         fontSize: '14px',
-        lineHeight: '1.7',
+        lineHeight: '1.8',
         color: '#eee',
         margin: '4px 0',
     },
-    briefBullet: {
+    bullet: {
         fontSize: '14px',
-        lineHeight: '1.7',
-        color: '#ccc',
-        paddingLeft: '12px',
-        margin: '4px 0',
+        lineHeight: '1.8',
+        color: '#aaa',
+        paddingLeft: '8px',
+        margin: '2px 0',
     },
-    briefParagraph: {
+    paragraph: {
         fontSize: '14px',
-        lineHeight: '1.7',
-        color: '#ccc',
+        lineHeight: '1.8',
+        color: '#aaa',
         margin: '4px 0',
     },
     sourcesSection: {
-        borderTop: '1px solid #1a1a1a',
-        paddingTop: '20px',
-        marginBottom: '24px',
-    },
-    sourcesTitle: {
-        fontSize: '14px',
-        fontWeight: 600,
-        color: '#888',
-        marginBottom: '12px',
-    },
-    sourceLink: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '8px 12px',
-        borderRadius: '6px',
-        textDecoration: 'none',
-        color: '#aaa',
-        fontSize: '13px',
-        transition: 'background 0.15s',
-        marginBottom: '4px',
-    },
-    sourceIndex: {
-        color: '#555',
-        fontSize: '11px',
-        fontWeight: 600,
-        width: '18px',
-    },
-    sourceName: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap' as const,
-    },
-    regenerateBtn: {
-        background: 'transparent',
-        color: '#666',
-        border: '1px solid #222',
-        padding: '10px 24px',
-        fontSize: '13px',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        display: 'block',
-        margin: '0 auto',
-    },
-    footer: {
-        marginTop: '60px',
         borderTop: '1px solid #111',
         paddingTop: '24px',
-        textAlign: 'center' as const,
+        marginBottom: '32px',
     },
-    footerLabel: {
+    sourcesLabel: {
         fontSize: '11px',
         color: '#444',
         textTransform: 'uppercase' as const,
         letterSpacing: '1px',
         marginBottom: '12px',
     },
-    cronRow: {
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '20px',
-        flexWrap: 'wrap' as const,
-    },
-    cronItem: {
-        fontSize: '12px',
+    sourceLink: {
+        display: 'block',
+        padding: '6px 0',
+        textDecoration: 'none',
         color: '#555',
+        fontSize: '13px',
+        borderBottom: '1px solid #0a0a0a',
+    },
+    regenerateBtn: {
+        background: 'transparent',
+        color: '#444',
+        border: '1px solid #1a1a1a',
+        padding: '8px 20px',
+        fontSize: '12px',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        display: 'block',
+        margin: '0 auto',
     },
 };
